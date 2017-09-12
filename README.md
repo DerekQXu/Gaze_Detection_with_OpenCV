@@ -1,1 +1,2 @@
-# Gaze_Detection_with_OpenCV
+## Gaze Detection with OpenCV (IN-PROGRESS)
+currently working on pupil tracking using python and OpenCV.
