@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+'''
 #Define Queue
 class Queue:
     def __init__(self):
@@ -13,15 +14,19 @@ class Queue:
         self.items.pop()
     def size(self):
         return len(self.items)
+'''
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 
 cap = cv2.VideoCapture(0)
+
+'''
 pupilArrayLeftX = Queue()
 pupilArrayLeftY = Queue()
 pupilArrayRightX = Queue()
 pupilArrayRightY = Queue()
+'''
 
 while True:
     #setup
