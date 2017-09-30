@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 
-'''
 #Define Queue
 class Queue:
     def __init__(self):
@@ -14,19 +13,15 @@ class Queue:
         self.items.pop()
     def size(self):
         return len(self.items)
-'''
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 
 cap = cv2.VideoCapture(0)
-
-'''
 pupilArrayLeftX = Queue()
 pupilArrayLeftY = Queue()
 pupilArrayRightX = Queue()
 pupilArrayRightY = Queue()
-'''
 
 while True:
     #setup
@@ -37,20 +32,28 @@ while True:
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
     gray = clahe.apply(gray)
     #detect face
-    faces = face_cascade.detectMultiScale(gray, 1.3, 10)
+    faces = face_cascade.detectMultiScale(gray, 1.3, 8)
+    '''
+    while len(faces) == 0:
+        featureNum = featureNum - 1
+        faces = face_cascade.detectMultiScale(gray, 1.3, featureNum)
+        if featureNum == 0:
+            break
+    '''
     for (x,y,w,h) in faces:
         #setup
-        '''uncomment for face rectangle:
-        cv2.rectangle(img, (x,y), (x+w, y+h), (255,0,0), 2)'''
-        eroi_gray = gray[int(y+h/4):int(y+3*h/4), x:x+w]
+        '''uncomment for face rectangle:'''
+        cv2.rectangle(img, (x,y), (x+w, y+h), (255,0,0), 2)#'''
+        eroi_gray = gray[int(y+h/5):int(y+h/1.8), x:x+w]
         eroi_gray = cv2.medianBlur(eroi_gray, 5)
-        eroi_color = img[int(y+h/4):int(y+3*h/4), x:x+w]
+        eroi_color = img[int(y+h/5):int(y+h/1.8), x:x+w]
+        cv2.imshow('dbug',eroi_color)
         #detect eyes
-        eyes = eye_cascade.detectMultiScale(eroi_gray, 1.3, 15)
+        eyes = eye_cascade.detectMultiScale(eroi_gray, 1.3, 5)
         for (ex,ey,ew,eh) in eyes:
             #setup
-            '''uncomment for eye rectangle:
-            cv2.rectangle(eroi_color, (ex,ey), (ex+ew,ey+eh), (0,255,0), 2)'''
+            '''uncomment for eye rectangle:'''
+            cv2.rectangle(eroi_color, (ex,ey), (ex+ew,ey+eh), (0,255,0), 2)#'''
             proi_gray = eroi_gray[ey:ey+eh, ex:ex+ew]
             proi_color = eroi_color[ey:ey+eh, ex:ex+ew]
             #threshold
