@@ -1,36 +1,16 @@
 import cv2
 import numpy as np
-
-#Define Queue
-class Queue:
-    def __init__(self):
-        self.items = []
-    def isEmpty(self):
-        return self.items == []
-    def enqueue(self,item):
-        self.items.insert(0,item)
-    def dequeue(self):
-        self.items.pop()
-    def size(self):
-        return len(self.items)
+import statistics
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
-
 cap = cv2.VideoCapture(0)
-pupilArrayLeftX = Queue()
-pupilArrayLeftY = Queue()
-pupilArrayRightX = Queue()
-pupilArrayRightY = Queue()
-
 while True:
     #setup
     ret, img = cap.read()
-    img = cv2.medianBlur(img,5)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    #fix illuminescence + increase contrast
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-    gray = clahe.apply(gray)
+    img = cv2.medianBlur(img,5)
+    gray = clahe.apply(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY))
     #detect face
     faces = face_cascade.detectMultiScale(gray, 1.3, 8)
     '''
@@ -44,12 +24,12 @@ while True:
         #setup
         '''uncomment for face rectangle:'''
         cv2.rectangle(img, (x,y), (x+w, y+h), (255,0,0), 2)#'''
-        eroi_gray = gray[int(y+h/5):int(y+h/1.8), x:x+w]
-        eroi_gray = cv2.medianBlur(eroi_gray, 5)
+        eroi_gray = cv2.medianBlur(gray[int(y+h/5):int(y+h/1.8), x:x+w], 5)
         eroi_color = img[int(y+h/5):int(y+h/1.8), x:x+w]
         cv2.imshow('dbug',eroi_color)
         #detect eyes
         eyes = eye_cascade.detectMultiScale(eroi_gray, 1.3, 5)
+        print(len(eyes))
         for (ex,ey,ew,eh) in eyes:
             #setup
             '''uncomment for eye rectangle:'''
@@ -65,7 +45,7 @@ while True:
             ret, proi_mask = cv2.threshold(proi_gray, (minbrightness+2), 255,
                     cv2.THRESH_BINARY)
             proi_gray = cv2.bitwise_and(proi_gray, proi_gray, mask=proi_mask)
-            proi_gray[proi_mask > 0] = 255
+            #proi_gray[proi_mask > 0] = 255
             #find corner of eyes
             '''
             proi_gray_fix = np.float32(proi_gray)
@@ -74,6 +54,16 @@ while True:
             proi_color[dst>0.01*dst.max()] = [0,255,0]
             '''
             #average blob coordinates
+            listX = []
+            listY = []
+            for px in range(0, ew-1):
+                for py in range(0, eh-1):
+                    if proi_gray[px,py] < 50:
+                        listX.append(px)
+                        listY.append(py)
+            averageX = int(statistics.median(listX))
+            averageY = int(statistics.median(listY))
+            '''
             count = 0
             averageX = 0
             averageY = 0
@@ -89,6 +79,7 @@ while True:
             averageY = int(averageY/count)
             print (averageX)
             print (averageY)
+            '''
             #draw coordinate locations
             for px in range(averageX-3, averageX+3):
                 for py in range(averageY-3, averageY+3):
