@@ -13,6 +13,10 @@ to detect the lowest brightness in the eye region (commonly the pupil).
 ### Dependencies:
 * OpenCV
 * numpy
+### Required Files:
+Found on [opencv](https://github.com/opencv/opencv/tree/master/data/haarcascades)
+* haarcascade_frontalface_default.xml
+* haarcascade_eye.xml
 ### TODO:
 * Further Limit Haar Cascade search area by recognizing sclera of eye
 * Gaze Detection
